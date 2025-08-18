@@ -1,6 +1,7 @@
 'use client';
 
-import { WalletComponents } from '@coinbase/onchainkit/wallet';
+import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+import { Wallet, WalletDropdown } from '@coinbase/onchainkit/wallet';
 import ChatInterface from '@/components/ChatInterface';
 import AvatarRenderer from '@/components/AvatarRenderer';
 import TippingPanel from '@/components/TippingPanel';
@@ -10,10 +11,10 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
       <header className="flex justify-between items-center p-4">
         <h1 className="text-2xl font-bold text-white">WaifuVerse</h1>
-        <WalletComponents>
-          <WalletComponents.ConnectWallet />
-          <WalletComponents.WalletDropdown />
-        </WalletComponents>
+        <Wallet>
+          <ConnectWallet />
+          <WalletDropdown />
+        </Wallet>
       </header>
       
       <main className="flex h-[calc(100vh-80px)] gap-4 p-4">

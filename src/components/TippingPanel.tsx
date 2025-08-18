@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Transaction, TransactionButton } from '@coinbase/onchainkit/transaction';
-import { useAccount } from 'wagmi';
+import { useAccount } from '@coinbase/onchainkit/wallet';
 
 interface TipData {
   amount: string;

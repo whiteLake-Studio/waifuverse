@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { useSocket } from '@/hooks/useSocket';
 
 interface AvatarState {
   emotion: 'neutral' | 'happy' | 'excited' | 'surprised' | 'thankful';
@@ -10,7 +9,7 @@ interface AvatarState {
   visemes?: number[];
 }
 
-export default function AvatarRenderer() {
+export default function AvatarRenderer({ emotion = 'neutral' }: { emotion?: string }) {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene>();
   const rendererRef = useRef<THREE.WebGLRenderer>();
@@ -18,33 +17,9 @@ export default function AvatarRenderer() {
   const animationIdRef = useRef<number>();
   
   const [avatarState, setAvatarState] = useState<AvatarState>({
-    emotion: 'neutral',
+    emotion: emotion as AvatarState['emotion'],
     speaking: false
   });
-
-  const { socket } = useSocket();
-
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on('avatar-state', (state: AvatarState) => {
-      setAvatarState(state);
-    });
-
-    socket.on('viseme', (data: { visemes: number[] }) => {
-      setAvatarState(prev => ({ ...prev, visemes: data.visemes, speaking: true }));
-    });
-
-    socket.on('speaking-end', () => {
-      setAvatarState(prev => ({ ...prev, speaking: false, visemes: undefined }));
-    });
-
-    return () => {
-      socket.off('avatar-state');
-      socket.off('viseme');
-      socket.off('speaking-end');
-    };
-  }, [socket]);
 
   useEffect(() => {
     if (!mountRef.current) return;

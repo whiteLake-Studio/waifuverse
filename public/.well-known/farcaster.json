@@ -1,0 +1,22 @@
+{
+  "frame": {
+    "version": "1",
+    "name": "WaifuVerse",
+    "homeUrl": "http://localhost:3000",
+    "iconUrl": "http://localhost:3000/icon.png",
+    "splashImageUrl": "http://localhost:3000/splash.png",
+    "splashBackgroundColor": "#9333ea",
+    "webhookUrl": "http://localhost:3000/api/webhook",
+    "subtitle": "Interactive AI Waifu on Base",
+    "description": "Chat with your AI waifu companion, send crypto tips, and watch her react with emotions. Built on Base with real-time voice synthesis.",
+    "screenshotUrls": [],
+    "primaryCategory": "social",
+    "tags": ["ai", "waifu", "chat", "tipping", "base", "crypto"],
+    "heroImageUrl": "http://localhost:3000/og.png",
+    "tagline": "Your AI companion on Base",
+    "ogTitle": "WaifuVerse - Interactive AI Waifu",
+    "ogDescription": "Chat, tip, and interact with your AI waifu companion on Base",
+    "ogImageUrl": "http://localhost:3000/og.png",
+    "noindex": false
+  }
+}
