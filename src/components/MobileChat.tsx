@@ -41,12 +41,11 @@ export default function MobileChat({ onBack, waifuData }: MobileChatProps) {
       // Simulate waifu response
       setTimeout(() => {
         const responses = [
-          "That's really interesting! I love talking with you =•",
+          "That's really interesting! I love talking with you ðŸ’•",
           "Tell me more about that, I'm curious!",
-          "You always know how to make me smile! =
-",
-          "I'm here for you, always! =–",
-          "That sounds wonderful! Thanks for sharing with me <8"
+          "You always know how to make me smile! ðŸ˜Š",
+          "I'm here for you, always! ðŸ’–",
+          "That sounds wonderful! Thanks for sharing with me ðŸ’"
         ];
         
         const response = responses[Math.floor(Math.random() * responses.length)];
@@ -111,7 +110,7 @@ export default function MobileChat({ onBack, waifuData }: MobileChatProps) {
               className="relative w-72 h-80 bg-gradient-to-b from-pink-400 via-purple-400 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl border-4 border-white/20"
             >
               <div className="text-center">
-                <div className="text-6xl mb-4 animate-pulse">ó</div>
+                <div className="text-6xl mb-4 animate-pulse">ðŸ’•</div>
                 <h3 className="text-2xl font-bold text-white mb-2">Loading {waifuName}...</h3>
                 <p className="text-pink-100">Please wait</p>
               </div>
@@ -135,7 +134,7 @@ export default function MobileChat({ onBack, waifuData }: MobileChatProps) {
               className="px-6 py-2 bg-black/50 backdrop-blur-sm rounded-full"
             >
               <p className="text-sm text-white">
-                {isWaifuSpeaking ? `${waifuName} is speaking...` : "Ready to chat =•"}
+                {isWaifuSpeaking ? `${waifuName} is speaking...` : "Ready to chat ðŸ’¬"}
               </p>
             </motion.div>
           </div>
@@ -185,7 +184,7 @@ export default function MobileChat({ onBack, waifuData }: MobileChatProps) {
             onClick={() => setShowTipping(!showTipping)}
             className="w-12 h-12 bg-purple-700/50 backdrop-blur-sm rounded-full flex items-center justify-center"
           >
-            <span className="text-xl">=°</span>
+            <span className="text-xl">ðŸ’Ž</span>
           </motion.button>
 
           <motion.button
@@ -249,7 +248,7 @@ export default function MobileChat({ onBack, waifuData }: MobileChatProps) {
               animate={{ opacity: 1 }}
               className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-red-500 px-4 py-2 rounded-full text-white text-sm"
             >
-              <¤ Recording...
+              ðŸ”´ Recording...
             </motion.div>
           )}
         </div>
@@ -265,7 +264,7 @@ export default function MobileChat({ onBack, waifuData }: MobileChatProps) {
             className="absolute inset-x-0 bottom-0 bg-black/90 backdrop-blur-sm p-6 rounded-t-3xl"
           >
             <div className="text-center mb-4">
-              <h3 className="text-xl font-bold">Tip {waifuName} =•</h3>
+              <h3 className="text-xl font-bold">Tip {waifuName} ðŸ’Ž</h3>
               <p className="text-purple-300">Show your appreciation</p>
             </div>
             <div className="grid grid-cols-3 gap-3 mb-4">

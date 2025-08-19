@@ -76,7 +76,7 @@ export default function CustomWaifuCreator({ onComplete, onBack }: CustomWaifuCr
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-purple-900 via-pink-800 to-purple-900 text-white overflow-hidden">
+    <div className="fixed inset-0 bg-gradient-to-b from-purple-900 via-pink-800 to-purple-900 text-white flex flex-col">
       {/* Header */}
       <div className="flex justify-between items-center p-4 pt-12 bg-black/20 backdrop-blur-sm">
         <button onClick={onBack} className="text-white">
@@ -445,8 +445,8 @@ export default function CustomWaifuCreator({ onComplete, onBack }: CustomWaifuCr
         </AnimatePresence>
       </div>
 
-      {/* Navigation */}
-      <div className="flex justify-between p-4 bg-black/20 backdrop-blur-sm">
+      {/* Navigation - Fixed at bottom */}
+      <div className="flex justify-between p-4 bg-black/20 backdrop-blur-sm border-t border-white/10">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
