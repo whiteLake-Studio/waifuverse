@@ -1,34 +1,61 @@
 'use client';
 
+import { useState } from 'react';
+import MainMenu from '@/components/MainMenu';
+import MobileChat from '@/components/MobileChat';
+import CustomWaifuCreator from '@/components/CustomWaifuCreator';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { Wallet, WalletDropdown } from '@coinbase/onchainkit/wallet';
-import ChatInterface from '@/components/ChatInterface';
-import AvatarRenderer from '@/components/AvatarRenderer';
-import TippingPanel from '@/components/TippingPanel';
+import { WaifuModel } from '@/types/waifu';
+
+type Screen = 'menu' | 'create' | 'private' | 'stream';
 
 export default function Home() {
+  const [currentScreen, setCurrentScreen] = useState<Screen>('menu');
+  const [customWaifu, setCustomWaifu] = useState<WaifuModel | null>(null);
+
+  const handleNavigate = (screen: Screen) => {
+    setCurrentScreen(screen);
+  };
+
+  const handleBack = () => {
+    setCurrentScreen('menu');
+  };
+
+  const handleWaifuCreated = (waifu: WaifuModel) => {
+    setCustomWaifu(waifu);
+    // Go to stream/chat after waifu creation
+    setCurrentScreen('stream');
+  };
+
+  // Mobile-first design
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <header className="flex justify-between items-center p-4">
-        <h1 className="text-2xl font-bold text-white">WaifuVerse</h1>
+    <div className="min-h-screen bg-black text-white">
+      {/* Hidden wallet connection for functionality */}
+      <div className="hidden">
         <Wallet>
           <ConnectWallet />
           <WalletDropdown />
         </Wallet>
-      </header>
-      
-      <main className="flex h-[calc(100vh-80px)] gap-4 p-4">
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1 bg-black/20 rounded-lg backdrop-blur-sm border border-white/10 mb-4">
-            <AvatarRenderer />
-          </div>
-          <TippingPanel />
-        </div>
-        
-        <div className="flex-1">
-          <ChatInterface />
-        </div>
-      </main>
+      </div>
+
+      {currentScreen === 'menu' && (
+        <MainMenu onNavigate={handleNavigate} />
+      )}
+
+      {(currentScreen === 'stream' || currentScreen === 'private') && (
+        <MobileChat 
+          onBack={handleBack} 
+          waifuData={customWaifu}
+        />
+      )}
+
+      {currentScreen === 'create' && (
+        <CustomWaifuCreator 
+          onComplete={handleWaifuCreated}
+          onBack={handleBack}
+        />
+      )}
     </div>
   );
 }
