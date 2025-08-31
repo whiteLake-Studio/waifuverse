@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   const { text } = body;
 
   try {
-    const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM', {
+    const response = await fetch('https://api.elevenlabs.io/v1/text-to-speech/ShB6BQqbEXZxWO5511Qq', {
       method: 'POST',
       headers: {
         'Accept': 'audio/mpeg',

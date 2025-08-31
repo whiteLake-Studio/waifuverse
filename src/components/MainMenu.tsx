@@ -1,14 +1,22 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { AuthButton } from './AuthButton';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MainMenuProps {
   onNavigate: (screen: 'create' | 'private' | 'stream') => void;
 }
 
 export default function MainMenu({ onNavigate }: MainMenuProps) {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 via-purple-800 to-black flex flex-col items-center justify-center p-6">
+      <div className="absolute top-6 right-6">
+        <AuthButton />
+      </div>
+      
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -27,12 +35,21 @@ export default function MainMenu({ onNavigate }: MainMenuProps) {
           transition={{ delay: 0.1 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => onNavigate('create')}
-          className="w-full py-4 px-6 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl font-semibold text-white shadow-lg"
+          onClick={() => {
+            if (!isAuthenticated) {
+              alert('Please sign in with Farcaster to create your waifu');
+              return;
+            }
+            onNavigate('create');
+          }}
+          className="w-full py-4 px-6 bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl font-semibold text-white shadow-lg relative"
         >
           <div className="flex items-center justify-center space-x-3">
             <span className="text-2xl">✨</span>
             <span>Create Your Waifu</span>
+            {!isAuthenticated && (
+              <span className="text-xs bg-yellow-500 text-black px-2 py-1 rounded-full ml-2">Sign in required</span>
+            )}
           </div>
         </motion.button>
 

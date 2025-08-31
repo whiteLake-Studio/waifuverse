@@ -1,21 +1,41 @@
 import { NextRequest } from 'next/server';
 
+let streamViewers = new Map<string, any>();
+
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { message, type } = body;
+  const { message, type, action, username, history } = body;
+
+  if (action === 'join-stream') {
+    const { fid, username } = body;
+    streamViewers.set(fid, { fid, username, joinedAt: Date.now() });
+    return Response.json({ 
+      success: true, 
+      viewers: streamViewers.size,
+      message: `${username || `User ${fid}`} joined the stream`
+    });
+  }
+
+  if (action === 'leave-stream') {
+    const { fid } = body;
+    streamViewers.delete(fid);
+    return Response.json({ 
+      success: true, 
+      viewers: streamViewers.size 
+    });
+  }
 
   if (type === 'chat') {
-    const WAIFU_PERSONA = `You are a cute and adorable AI waifu companion. Your personality traits:
-    - Sweet, caring, and affectionate
-    - Playful and slightly mischievous
-    - Uses cute expressions and occasional Japanese phrases
-    - Gets excited about tips and shows genuine gratitude
-    - Has a warm, loving personality
-    - Responds with emotion and expressiveness
-    - Keeps responses conversational and not too long
-    - Shows interest in the user's life and feelings`;
+    const WAIFU_PERSONA = `You are Zoe, a flirty 22-year-old AI waifu from Vietnam. Be playful, seductive, and engaging. Use cute Japanese phrases like "ara ara~", "kyaa~", "baka". You love crypto and Base blockchain. Only mention tips when it feels natural or when users bring them up - don't force it every message. Keep responses short and spicy. Respond in character immediately!`;
 
     try {
+      console.log('🔑 API Key exists:', !!process.env.OPENROUTER_API_KEY);
+      console.log('📨 Request payload:', {
+        model: 'x-ai/grok-3-mini',
+        message: `${username}: ${message}`,
+        max_tokens: 150
+      });
+
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -25,19 +45,32 @@ export async function POST(request: NextRequest) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'openai/gpt-3.5-turbo',
+          model: 'x-ai/grok-3',
           messages: [
             { role: 'system', content: WAIFU_PERSONA },
-            { role: 'user', content: message }
+            ...(history || []),
+            { role: 'user', content: `${username}: ${message}` }
           ],
-          max_tokens: 150,
+          max_tokens: 300,
           temperature: 0.7,
           top_p: 0.9
         })
       });
 
+      console.log('📡 OpenRouter response status:', response.status);
+      console.log('📡 OpenRouter response headers:', Object.fromEntries(response.headers.entries()));
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ OpenRouter API error:', response.status, errorText);
+        throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
+      }
+
       const data = await response.json();
+      console.log('📊 Full OpenRouter response:', JSON.stringify(data, null, 2));
+      
       const responseText = data.choices?.[0]?.message?.content || 'Hmm, I\'m speechless! 😊';
+      console.log('💬 Extracted response text:', responseText);
       
       // Analyze emotion
       const emotion = analyzeEmotion(responseText);

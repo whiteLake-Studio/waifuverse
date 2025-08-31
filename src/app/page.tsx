@@ -4,6 +4,7 @@ import { useState } from 'react';
 import MainMenu from '@/components/MainMenu';
 import MobileChat from '@/components/MobileChat';
 import CustomWaifuCreator from '@/components/CustomWaifuCreator';
+import StreamMode from '@/components/StreamMode';
 import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { Wallet, WalletDropdown } from '@coinbase/onchainkit/wallet';
 import { WaifuModel } from '@/types/waifu';
@@ -51,9 +52,8 @@ export default function Home() {
       )}
 
       {currentScreen === 'stream' && (
-        <MobileChat 
-          onBack={handleBack} 
-          waifuData={customWaifu}
+        <StreamMode 
+          onBack={handleBack}
         />
       )}
 
@@ -93,8 +93,8 @@ export default function Home() {
                 
                 <div className="space-y-4">
                   <div className="bg-black/30 rounded-xl p-4">
-                    <div className="text-3xl font-bold text-white">$4.99</div>
-                    <div className="text-purple-300 text-sm">One-time unlock</div>
+                    <div className="text-3xl font-bold text-white">$200</div>
+                    <div className="text-purple-300 text-sm">Premium access</div>
                   </div>
                   
                   <div className="space-y-3">
