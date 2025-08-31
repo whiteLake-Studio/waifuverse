@@ -90,7 +90,7 @@ export default function MainMenu({ onNavigate }: MainMenuProps) {
         transition={{ delay: 0.5 }}
         className="mt-12 text-center text-purple-300 text-sm"
       >
-        <p>Powered by AI • Built on Base</p>
+        <p>Powered by AI • Built on Farcaster</p>
       </motion.div>
     </div>
   );

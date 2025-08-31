@@ -26,7 +26,7 @@ function BlenderAvatarModel({ waifuData, animation = 'idle', speaking = false }:
 
   const modelUrl = waifuData ? (waifuData.modelUrl || getModelPath(waifuData)) : '/models/base_waifu.glb';
 
-  let gltf, animations, actions, names;
+  let gltf: any, animations: any, actions: any, names: any;
   
   try {
     const gltfData = useGLTF(modelUrl);
@@ -45,7 +45,7 @@ function BlenderAvatarModel({ waifuData, animation = 'idle', speaking = false }:
       const scene = gltf.scene;
       
       // Traverse the scene and update materials based on waifu configuration
-      scene.traverse((child) => {
+      scene.traverse((child: any) => {
         if (child instanceof THREE.Mesh && child.material) {
           const material = child.material as THREE.MeshStandardMaterial;
           
@@ -76,7 +76,7 @@ function BlenderAvatarModel({ waifuData, animation = 'idle', speaking = false }:
     if (!actions || !waifuData) return;
 
     // Stop all current animations
-    Object.values(actions).forEach(action => action?.stop());
+    Object.values(actions).forEach((action: any) => action?.stop());
 
     // Get the correct animation name based on the waifu's animation set
     const animationSet = ANIMATION_SETS.find(set => set.id === waifuData.animationSet);
@@ -173,7 +173,7 @@ function getColorHex(colorId: string, type: 'hair' | 'eye' | 'skin'): string {
     }
   };
   
-  return colorMaps[type][colorId] || '#ffffff';
+  return (colorMaps[type] as any)[colorId] || '#ffffff';
 }
 
 interface Avatar3DProps {

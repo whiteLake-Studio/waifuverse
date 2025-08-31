@@ -11,10 +11,10 @@ interface AvatarState {
 
 export default function AvatarRenderer({ emotion = 'neutral' }: { emotion?: string }) {
   const mountRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<THREE.Scene>();
-  const rendererRef = useRef<THREE.WebGLRenderer>();
-  const avatarRef = useRef<THREE.Group>();
-  const animationIdRef = useRef<number>();
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const avatarRef = useRef<THREE.Group | null>(null);
+  const animationIdRef = useRef<number | null>(null);
   
   const [avatarState, setAvatarState] = useState<AvatarState>({
     emotion: emotion as AvatarState['emotion'],

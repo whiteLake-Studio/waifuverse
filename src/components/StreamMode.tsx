@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSendTransaction, useAccount, useConnect, useWaitForTransactionReceipt } from 'wagmi';
+import { parseEther } from 'viem';
 
 interface StreamMessage {
   id: string;
@@ -18,12 +21,18 @@ interface StreamModeProps {
 }
 
 export default function StreamMode({ onBack }: StreamModeProps) {
+  const { user } = useAuth();
+  const { address, isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
+  const { sendTransaction, data: txHash } = useSendTransaction();
+  const { isSuccess: txConfirmed } = useWaitForTransactionReceipt({
+    hash: txHash,
+  });
   const [messages, setMessages] = useState<StreamMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isWaifuSpeaking, setIsWaifuSpeaking] = useState(false);
   const [showMoneyAnimation, setShowMoneyAnimation] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedTipAction, setSelectedTipAction] = useState<{amount: number; action: string; price: string} | null>(null);
   const [currentVideo, setCurrentVideo] = useState('/videos/waifu-01.mp4');
 
@@ -51,7 +60,7 @@ export default function StreamMode({ onBack }: StreamModeProps) {
         body: JSON.stringify({ 
           message: userMessage, 
           type: 'chat',
-          username: 'lausuarez02',
+          username: user?.username || 'Anonymous',
           history: messageHistory
         })
       });
@@ -112,7 +121,7 @@ export default function StreamMode({ onBack }: StreamModeProps) {
     const message: StreamMessage = {
       id: Date.now().toString(),
       type: 'chat',
-      user: { username: 'lausuarez02' },
+      user: { username: user?.username || 'Anonymous' },
       content: newMessage,
       timestamp: Date.now()
     };
@@ -126,43 +135,74 @@ export default function StreamMode({ onBack }: StreamModeProps) {
     setNewMessage('');
   };
 
-  const handleTip = (amount: number) => {
+  const handleTip = async (amount: number) => {
     console.log('💰 Processing tip:', amount);
+    console.log('🔗 Wallet connected:', isConnected, 'Address:', address);
     
-    const tipMessage: StreamMessage = {
-      id: Date.now().toString(),
-      type: 'tip',
-      user: { username: 'lausuarez02' },
-      content: `sent a ${selectedTipAction?.action || 'tip'}`,
-      timestamp: Date.now()
-    };
-
-    addMessage(tipMessage);
+    // If wallet not connected, connect first
+    if (!isConnected) {
+      console.log('🔌 Connecting wallet...');
+      const farcasterConnector = connectors.find(c => c.name.includes('farcaster') || c.name.includes('Farcaster'));
+      if (farcasterConnector) {
+        connect({ connector: farcasterConnector });
+        return;
+      } else {
+        console.error('❌ Farcaster connector not found');
+        return;
+      }
+    }
     
-    // Switch to special tip video
-    setCurrentVideo('/videos/waifu-00.mp4');
-    
-    // Trigger money animation
-    setShowMoneyAnimation(true);
-    setTimeout(() => {
-      setShowMoneyAnimation(false);
-      // Switch back to random video after tip animation
-      const regularVideos = ['/videos/waifu-01.mp4', '/videos/waifu-03.mp4', '/videos/waifu-04.mp4'];
-      setCurrentVideo(regularVideos[Math.floor(Math.random() * regularVideos.length)]);
-    }, 3000);
-    
-    // Zoe thanks for tip
-    handleWaifuResponse(`Thank you so much for making me ${selectedTipAction?.action}! You're amazing! 💖`);
+    try {
+      // Send direct ETH transaction to tip contract using wagmi
+      console.log('💳 Sending', amount, 'ETH to contract...');
+      sendTransaction({
+        to: '0x91880073Ab94B587D721C939355f8D25a74D39dE', // Your deployed TipReceiver contract
+        value: parseEther(amount.toString()), // Convert amount to wei
+      });
+      
+      console.log('💳 Tip transaction initiated for', amount, 'ETH');
+      
+      // Transaction initiated - confirmation will be handled by useEffect
+      
+    } catch (error) {
+      console.error('💥 Tip transaction failed:', error);
+      // Still show animation even if transaction fails
+      const tipMessage: StreamMessage = {
+        id: Date.now().toString(),
+        type: 'tip',
+        user: { username: user?.username || 'Anonymous' },
+        content: `tried to send a ${selectedTipAction?.action || 'tip'}`,
+        timestamp: Date.now()
+      };
+      addMessage(tipMessage);
+    }
   };
 
   // Get only last 2 messages for display
   const visibleMessages = messages.slice(-2);
 
+  // Watch for transaction confirmation
   useEffect(() => {
-    if (selectedTipAction) {
-      setShowPaymentModal(true);
+    if (txConfirmed && txHash) {
+      console.log('✅ Transaction confirmed!', txHash);
+      
+      // Switch to special tip video
+      setCurrentVideo('/videos/waifu-00.mp4');
+      
+      // Trigger money animation
+      setShowMoneyAnimation(true);
+      setTimeout(() => {
+        setShowMoneyAnimation(false);
+        // Switch back to random video after tip animation
+        const regularVideos = ['/videos/waifu-01.mp4', '/videos/waifu-03.mp4', '/videos/waifu-04.mp4'];
+        setCurrentVideo(regularVideos[Math.floor(Math.random() * regularVideos.length)]);
+      }, 3000);
+      
+      // Zoe thanks for tip with user's real name
+      handleWaifuResponse(`${user?.username || 'Someone'} just tipped me! Thank you so much! 💖`);
     }
-  }, [selectedTipAction]);
+  }, [txConfirmed, txHash, user?.username]);
+
 
   return (
     <div className="h-screen w-screen relative overflow-hidden bg-black">
@@ -275,24 +315,24 @@ export default function StreamMode({ onBack }: StreamModeProps) {
       </div>
 
       {/* Quick Tip Action Buttons */}
-      <div className="absolute bottom-32 left-1/2 transform -translate-x-1/2 z-20 flex space-x-2">
+      <div className="absolute bottom-20 left-4 right-4 z-20 flex gap-2 justify-center">
         <button 
-          onClick={() => setSelectedTipAction({amount: 0.001, action: "Send a kiss", price: "$3"})}
-          className="px-4 py-2 bg-pink-500/80 hover:bg-pink-600/80 rounded-full backdrop-blur-sm text-white text-sm font-semibold"
+          onClick={() => handleTip(0.000001)}
+          className="flex-1 max-w-[150px] px-3 py-1.5 bg-pink-500/70 hover:bg-pink-600/80 rounded-full backdrop-blur-sm text-white text-xs font-semibold"
         >
-          💋 Send a kiss
+          💋 Kiss
         </button>
         <button 
-          onClick={() => setSelectedTipAction({amount: 0.005, action: "Make her dance", price: "$15"})}
-          className="px-4 py-2 bg-purple-500/80 hover:bg-purple-600/80 rounded-full backdrop-blur-sm text-white text-sm font-semibold"
+          onClick={() => handleTip(0.000005)}
+          className="flex-1 max-w-[150px] px-3 py-1.5 bg-purple-500/70 hover:bg-purple-600/80 rounded-full backdrop-blur-sm text-white text-xs font-semibold"
         >
-          💃 Make her dance
+          💃 Dance
         </button>
         <button 
-          onClick={() => setSelectedTipAction({amount: 0.01, action: "Special show", price: "$30"})}
-          className="px-4 py-2 bg-red-500/80 hover:bg-red-600/80 rounded-full backdrop-blur-sm text-white text-sm font-semibold"
+          onClick={() => handleTip(0.00001)}
+          className="flex-1 max-w-[150px] px-3 py-1.5 bg-red-500/70 hover:bg-red-600/80 rounded-full backdrop-blur-sm text-white text-xs font-semibold"
         >
-          🔥 Special show
+          🔥 Show
         </button>
       </div>
 
@@ -300,7 +340,7 @@ export default function StreamMode({ onBack }: StreamModeProps) {
       <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/80 to-transparent p-4">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-sm font-bold">
-            L
+            {user?.username?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div className="flex-1 flex space-x-2">
             <input
@@ -323,75 +363,6 @@ export default function StreamMode({ onBack }: StreamModeProps) {
       </div>
 
 
-      {/* Payment Modal */}
-      <AnimatePresence>
-        {showPaymentModal && selectedTipAction && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              className="bg-gradient-to-b from-purple-900/95 to-pink-900/95 rounded-2xl p-6 max-w-sm w-full border border-purple-500/30 backdrop-blur-md"
-            >
-              <div className="text-center">
-                <div className="text-4xl mb-4">✨</div>
-                <h3 className="text-2xl font-bold mb-2 text-white">{selectedTipAction.action}</h3>
-                <p className="text-purple-200 mb-6">Make Zoe do something special just for you!</p>
-                
-                <div className="space-y-4">
-                  <div className="bg-black/30 rounded-xl p-4">
-                    <div className="text-3xl font-bold text-white">{selectedTipAction.price}</div>
-                    <div className="text-purple-300 text-sm">One-time payment</div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => {
-                        handleTip(selectedTipAction.amount);
-                        setShowPaymentModal(false);
-                        setSelectedTipAction(null);
-                      }}
-                      className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold text-white"
-                    >
-                      💳 Pay with Crypto
-                    </motion.button>
-                    
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => {
-                        handleTip(selectedTipAction.amount);
-                        setShowPaymentModal(false);
-                        setSelectedTipAction(null);
-                      }}
-                      className="w-full py-3 bg-blue-600 rounded-xl font-semibold text-white"
-                    >
-                      💳 PayPal
-                    </motion.button>
-                  </div>
-                </div>
-                
-                <button
-                  onClick={() => {
-                    setShowPaymentModal(false);
-                    setSelectedTipAction(null);
-                  }}
-                  className="mt-4 text-gray-400 text-sm"
-                >
-                  Maybe later
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

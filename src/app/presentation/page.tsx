@@ -52,7 +52,7 @@ export default function Presentation() {
       content: [
         "Sub-second transaction speeds",
         "Minimal gas fees enable micro-payments",
-        "Seamless Coinbase ecosystem integration",
+        "Native Base app integration and user access",
         "Enterprise-grade security and reliability"
       ],
       gradient: "from-blue-600 via-blue-700 to-blue-900",

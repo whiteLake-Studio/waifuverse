@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "WaifuVerse",
-  description: "Interactive AI Waifu on Base",
+  description: "Interactive AI Waifu on Farcaster",
 };
 
 export default function RootLayout({

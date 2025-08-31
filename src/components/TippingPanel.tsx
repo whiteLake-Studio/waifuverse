@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Transaction, TransactionButton } from '@coinbase/onchainkit/transaction';
-import { useAccount } from '@coinbase/onchainkit/wallet';
+// import { useAccount } from '@coinbase/onchainkit/wallet';
 
 interface TipData {
   amount: string;
@@ -28,7 +28,7 @@ interface Tipper {
 }
 
 export default function TippingPanel() {
-  const { address } = useAccount();
+  const address = null; // const { address } = useAccount();
   const [selectedTip, setSelectedTip] = useState<TipData | null>(null);
   const [customAmount, setCustomAmount] = useState('');
   const [tipMessage, setTipMessage] = useState('');
