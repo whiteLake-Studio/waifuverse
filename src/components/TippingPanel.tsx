@@ -1,23 +1,60 @@
 'use client';
 
 import { useState } from 'react';
-import { Transaction, TransactionButton } from '@coinbase/onchainkit/transaction';
-// import { useAccount } from '@coinbase/onchainkit/wallet';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { parseEther } from 'viem';
 
 interface TipData {
   amount: string;
-  currency: 'ETH' | 'USDC';
+  currency: 'DUCK';
   message?: string;
 }
 
 const tipAmounts = [
-  { amount: '0.001', currency: 'ETH' as const, label: '$3' },
-  { amount: '0.005', currency: 'ETH' as const, label: '$15' },
-  { amount: '0.01', currency: 'ETH' as const, label: '$30' },
-  { amount: '5', currency: 'USDC' as const, label: '$5' },
-  { amount: '10', currency: 'USDC' as const, label: '$10' },
-  { amount: '25', currency: 'USDC' as const, label: '$25' },
+  { amount: '0.1', currency: 'DUCK' as const, label: '0.1 DUCK' },
+  { amount: '0.5', currency: 'DUCK' as const, label: '0.5 DUCK' },
+  { amount: '1', currency: 'DUCK' as const, label: '1 DUCK' },
+  { amount: '2', currency: 'DUCK' as const, label: '2 DUCK' },
+  { amount: '5', currency: 'DUCK' as const, label: '5 DUCK' },
+  { amount: '10', currency: 'DUCK' as const, label: '10 DUCK' },
 ];
+
+const DUCK_TOKEN_ADDRESS = '0xdA65892eA771d3268610337E9964D916028B7dAD';
+const TIP_CONTRACT_ADDRESS = '0x49fba895d0184512f6c12933F90BD91deD27c7FC';
+
+const ERC20_ABI = [
+  {
+    inputs: [{ name: 'spender', type: 'address' }, { name: 'amount', type: 'uint256' }],
+    name: 'approve',
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'account', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+] as const;
+
+const TIP_CONTRACT_ABI = [
+  {
+    inputs: [{ name: 'token', type: 'address' }, { name: 'amount', type: 'uint256' }, { name: 'note', type: 'string' }],
+    name: 'tipERC20',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ name: 'token', type: 'address' }, { name: 'amount', type: 'uint256' }],
+    name: 'tipERC20',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+] as const;
 
 interface Tipper {
   address: string;
@@ -28,7 +65,13 @@ interface Tipper {
 }
 
 export default function TippingPanel() {
-  const address = null; // const { address } = useAccount();
+  const { address } = useAccount();
+  const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
+  const [needsApproval, setNeedsApproval] = useState(false);
+  
   const [selectedTip, setSelectedTip] = useState<TipData | null>(null);
   const [customAmount, setCustomAmount] = useState('');
   const [tipMessage, setTipMessage] = useState('');
@@ -51,9 +94,55 @@ export default function TippingPanel() {
     if (customAmount) {
       setSelectedTip({
         amount: customAmount,
-        currency: 'ETH',
+        currency: 'DUCK',
         message: tipMessage
       });
+    }
+  };
+
+  const approveDuck = async () => {
+    if (!selectedTip) return;
+    
+    try {
+      const amount = parseEther(selectedTip.amount);
+      await writeContract({
+        address: DUCK_TOKEN_ADDRESS,
+        abi: ERC20_ABI,
+        functionName: 'approve',
+        args: [TIP_CONTRACT_ADDRESS, amount],
+      });
+      setNeedsApproval(false);
+    } catch (error) {
+      console.error('Approval failed:', error);
+    }
+  };
+
+  const sendTip = async () => {
+    if (!selectedTip || !address) return;
+    
+    try {
+      const amount = parseEther(selectedTip.amount);
+      
+      if (tipMessage) {
+        await writeContract({
+          address: TIP_CONTRACT_ADDRESS,
+          abi: TIP_CONTRACT_ABI,
+          functionName: 'tipERC20',
+          args: [DUCK_TOKEN_ADDRESS, amount, tipMessage],
+        });
+      } else {
+        await writeContract({
+          address: TIP_CONTRACT_ADDRESS,
+          abi: TIP_CONTRACT_ABI,
+          functionName: 'tipERC20',
+          args: [DUCK_TOKEN_ADDRESS, amount],
+        });
+      }
+    } catch (error) {
+      console.error('Tip failed:', error);
+      if (error.message?.includes('insufficient allowance')) {
+        setNeedsApproval(true);
+      }
     }
   };
 
@@ -104,10 +193,16 @@ export default function TippingPanel() {
               type="number"
               value={customAmount}
               onChange={(e) => setCustomAmount(e.target.value)}
-              placeholder="Enter amount (ETH)"
+              placeholder="Enter amount (DUCK)"
               className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-pink-500"
               step="0.001"
             />
+            <button
+              onClick={handleCustomTip}
+              className="w-full bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              Set Custom Amount
+            </button>
           </div>
         )}
 
@@ -120,26 +215,41 @@ export default function TippingPanel() {
           maxLength={100}
         />
 
-        {address && selectedTip && (
-          <Transaction
-            calls={[
-              {
-                to: '0x1234567890123456789012345678901234567890', // Replace with actual contract
-                data: '0x',
-                value: BigInt(parseFloat(selectedTip.amount) * 1e18)
-              }
-            ]}
+        {address && selectedTip && needsApproval && (
+          <button
+            onClick={approveDuck}
+            disabled={isPending || isConfirming}
+            className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-all"
           >
-            <TransactionButton
-              className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-all"
-              text={`Send Tip (${selectedTip.amount} ${selectedTip.currency})`}
-            />
-          </Transaction>
+            {isPending ? 'Confirming...' : isConfirming ? 'Processing...' : `Approve ${selectedTip.amount} DUCK`}
+          </button>
+        )}
+
+        {address && selectedTip && !needsApproval && (
+          <button
+            onClick={sendTip}
+            disabled={isPending || isConfirming}
+            className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-medium transition-all"
+          >
+            {isPending ? 'Confirming...' : isConfirming ? 'Processing...' : `Send Tip (${selectedTip.amount} ${selectedTip.currency})`}
+          </button>
+        )}
+        
+        {isConfirmed && (
+          <div className="text-green-400 text-sm text-center">
+            Tip sent successfully! 🎉
+          </div>
+        )}
+        
+        {error && (
+          <div className="text-red-400 text-sm text-center">
+            Error: {error.message}
+          </div>
         )}
 
         {!address && (
           <p className="text-center text-sm text-white/60">
-            Connect wallet to send tips
+            Connect wallet to send tips on DuckChain
           </p>
         )}
       </div>

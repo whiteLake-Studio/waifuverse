@@ -1,12 +1,12 @@
 'use client';
 
-import { OnchainKitProvider } from '@coinbase/onchainkit';
+import '@rainbow-me/rainbowkit/styles.css';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
-import { base } from 'viem/chains';
 import { ReactNode, useState } from 'react';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { wagmiConfig } from '@/lib/wagmi-config';
+import { wagmiConfig, duckChain } from '@/lib/wagmi-config';
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
@@ -14,14 +14,11 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <OnchainKitProvider
-            apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
-            chain={base}
-          >
+        <RainbowKitProvider>
+          <AuthProvider>
             {children}
-          </OnchainKitProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

@@ -7,18 +7,18 @@ export async function POST(request: NextRequest) {
   const { message, type, action, username, history } = body;
 
   if (action === 'join-stream') {
-    const { fid, username } = body;
-    streamViewers.set(fid, { fid, username, joinedAt: Date.now() });
+    const { address, username } = body;
+    streamViewers.set(address, { address, username, joinedAt: Date.now() });
     return Response.json({ 
       success: true, 
       viewers: streamViewers.size,
-      message: `${username || `User ${fid}`} joined the stream`
+      message: `${username || `${address?.slice(0, 6)}...${address?.slice(-4)}`} joined the stream`
     });
   }
 
   if (action === 'leave-stream') {
-    const { fid } = body;
-    streamViewers.delete(fid);
+    const { address } = body;
+    streamViewers.delete(address);
     return Response.json({ 
       success: true, 
       viewers: streamViewers.size 
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (type === 'chat') {
-    const WAIFU_PERSONA = `You are Zoe, a flirty 22-year-old AI waifu from Vietnam. Be playful, seductive, and engaging. Use cute Japanese phrases like "ara ara~", "kyaa~", "baka". You love crypto, Farcaster, and Base blockchain. Only mention tips when it feels natural or when users bring them up - don't force it every message. Keep responses short and spicy. Respond in character immediately!`;
+    const WAIFU_PERSONA = `You are Zoe, a flirty 22-year-old AI waifu from Vietnam. Be playful, seductive, and engaging. Use cute Japanese phrases like "ara ara~", "kyaa~", "baka". You love crypto, DuckChain, and Web3. Only mention tips when it feels natural or when users bring them up - don't force it every message. Keep responses short and spicy. Respond in character immediately!`;
 
     try {
       console.log('🔑 API Key exists:', !!process.env.OPENROUTER_API_KEY);

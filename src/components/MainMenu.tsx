@@ -37,7 +37,7 @@ export default function MainMenu({ onNavigate }: MainMenuProps) {
           whileTap={{ scale: 0.95 }}
           onClick={() => {
             if (!isAuthenticated) {
-              alert('Please sign in with Farcaster to create your waifu');
+              alert('Please connect your wallet to create your waifu');
               return;
             }
             onNavigate('create');
@@ -48,7 +48,7 @@ export default function MainMenu({ onNavigate }: MainMenuProps) {
             <span className="text-2xl">✨</span>
             <span>Create Your Waifu</span>
             {!isAuthenticated && (
-              <span className="text-xs bg-yellow-500 text-black px-2 py-1 rounded-full ml-2">Sign in required</span>
+              <span className="text-xs bg-yellow-500 text-black px-2 py-1 rounded-full ml-2">Wallet required</span>
             )}
           </div>
         </motion.button>
@@ -90,7 +90,7 @@ export default function MainMenu({ onNavigate }: MainMenuProps) {
         transition={{ delay: 0.5 }}
         className="mt-12 text-center text-purple-300 text-sm"
       >
-        <p>Powered by AI • Built on Farcaster</p>
+        <p>Powered by AI • Built on DuckChain</p>
       </motion.div>
     </div>
   );

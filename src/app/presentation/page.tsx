@@ -13,7 +13,7 @@ export default function Presentation() {
       content: [
         "Interactive AI companions with personality",
         "Built-in monetization through streaming",
-        "Farcaster authentication for Web3 natives",
+        "DuckChain wallet integration for Web3 natives",
         "Live streaming with real-time interactions"
       ],
       gradient: "from-purple-900 via-purple-800 to-pink-900",
@@ -47,16 +47,16 @@ export default function Presentation() {
       layout: "circular"
     },
     {
-      title: "Built on Base",
+      title: "Built on DuckChain",
       subtitle: "Lightning Fast & Affordable",
       content: [
         "Sub-second transaction speeds",
         "Minimal gas fees enable micro-payments",
-        "Native Base app integration and user access",
+        "Native DuckChain integration and user access",
         "Enterprise-grade security and reliability"
       ],
-      gradient: "from-blue-600 via-blue-700 to-blue-900",
-      emoji: "🔵",
+      gradient: "from-yellow-600 via-orange-700 to-red-900",
+      emoji: "🦆",
       layout: "base-special"
     },
     {
@@ -231,13 +231,13 @@ export default function Presentation() {
                   initial={{ rotate: -180, scale: 0 }}
                   animate={{ rotate: 0, scale: 1 }}
                   transition={{ delay: 0.3, type: "spring" }}
-                  className="w-24 h-24 bg-blue-500 rounded-full flex items-center justify-center mr-8"
+                  className="w-24 h-24 bg-yellow-500 rounded-full flex items-center justify-center mr-8"
                 >
-                  <span className="text-4xl text-white font-bold">B</span>
+                  <span className="text-4xl text-white font-bold">🦆</span>
                 </motion.div>
                 <div className="text-left">
                   <h1 className="text-6xl font-bold text-white mb-2">{slide.title}</h1>
-                  <p className="text-2xl text-blue-200">{slide.subtitle}</p>
+                  <p className="text-2xl text-yellow-200">{slide.subtitle}</p>
                 </div>
               </div>
             </motion.div>

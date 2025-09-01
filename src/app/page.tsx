@@ -5,8 +5,6 @@ import MainMenu from '@/components/MainMenu';
 import MobileChat from '@/components/MobileChat';
 import CustomWaifuCreator from '@/components/CustomWaifuCreator';
 import StreamMode from '@/components/StreamMode';
-import { ConnectWallet } from '@coinbase/onchainkit/wallet';
-import { Wallet, WalletDropdown } from '@coinbase/onchainkit/wallet';
 import { WaifuModel } from '@/types/waifu';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -39,13 +37,6 @@ export default function Home() {
   // Mobile-first design
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Hidden wallet connection for functionality */}
-      <div className="hidden">
-        <Wallet>
-          <ConnectWallet />
-          <WalletDropdown />
-        </Wallet>
-      </div>
 
       {currentScreen === 'menu' && (
         <MainMenu onNavigate={handleNavigate} />
