@@ -1,22 +1,21 @@
-# WaifuVerse - Interactive AI Waifu on Base
+# WaifuVerse - Interactive AI Waifu on Duckchain
 
-A real-time AI waifu companion built on Base blockchain with OnchainKit, featuring conversational AI, voice synthesis, and crypto tipping.
+A real-time AI waifu companion built on Duckchain blockchain with OnchainKit, featuring conversational AI, voice synthesis, and crypto tipping.
 
 ## 🚀 Features
 
 - **Real-time Chat**: WebSocket-based chat with AI waifu companion
 - **Voice Synthesis**: ElevenLabs TTS for natural voice responses
 - **3D Avatar**: Three.js-powered avatar with emotion expression
-- **Crypto Tipping**: Base OnchainKit integration for USDC/ETH tips
 - **Content Moderation**: Basic safety filters for appropriate conversations
 - **Real-time Metrics**: Performance monitoring and user analytics
 
 ## 🛠 Tech Stack
 
 - **Frontend**: Next.js 15, TypeScript, Tailwind CSS
-- **Web3**: Base OnchainKit, Wagmi, Viem
+- **Web3**: Duckchain, Wagmi, Viem
 - **Backend**: Node.js, Express, Socket.io
-- **AI**: OpenAI GPT-3.5-turbo
+- **AI**: grok
 - **Voice**: ElevenLabs TTS API
 - **3D**: Three.js for avatar rendering
 
@@ -28,7 +27,6 @@ A real-time AI waifu companion built on Base blockchain with OnchainKit, featuri
 - API keys for:
   - OpenAI
   - ElevenLabs
-  - OnchainKit (Coinbase Developer Platform)
   - WalletConnect (optional)
 
 ## 🔧 Setup
@@ -50,8 +48,6 @@ cd ..
 Create `.env.local` in the root directory:
 
 ```env
-# OnchainKit API Key (get from Coinbase Developer Platform)
-NEXT_PUBLIC_ONCHAINKIT_API_KEY=your-onchainkit-api-key
 
 # WalletConnect Project ID (get from WalletConnect Cloud)
 NEXT_PUBLIC_WC_PROJECT_ID=your-walletconnect-project-id
@@ -88,12 +84,6 @@ Visit `http://localhost:3000` to see the application.
 
 ## 🔑 API Keys Setup
 
-### OnchainKit API Key
-1. Visit [Coinbase Developer Platform](https://portal.cdp.coinbase.com/)
-2. Create a new project
-3. Generate an API key
-4. Add to `NEXT_PUBLIC_ONCHAINKIT_API_KEY`
-
 ### OpenAI API Key
 1. Visit [OpenAI Platform](https://platform.openai.com/)
 2. Create an API key
@@ -106,7 +96,7 @@ Visit `http://localhost:3000` to see the application.
 
 ## 🎮 Usage
 
-1. **Connect Wallet**: Use the wallet button to connect your Base-compatible wallet
+1. **Connect Wallet**: Use the wallet button to connect your Duckchain-compatible wallet
 2. **Chat**: Type messages to interact with your AI waifu
 3. **Send Tips**: Use the tipping panel to send crypto tips
 4. **Watch Avatar**: See emotion changes based on conversation and tips
@@ -178,7 +168,7 @@ server/
 ### Common Issues
 
 **Wallet not connecting:**
-- Ensure you're on Base Sepolia testnet
+- Ensure you're on Duckchain mainnet
 - Check OnchainKit API key is valid
 
 **Voice not working:**
