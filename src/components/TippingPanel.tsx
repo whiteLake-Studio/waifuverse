@@ -140,7 +140,7 @@ export default function TippingPanel() {
       }
     } catch (error) {
       console.error('Tip failed:', error);
-      if (error.message?.includes('insufficient allowance')) {
+      if (error instanceof Error && error.message?.includes('insufficient allowance')) {
         setNeedsApproval(true);
       }
     }
